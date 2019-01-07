@@ -1,43 +1,66 @@
-var express = require('express');
-var bodyParser = require("body-parser");
-var cors = require('cors');
+const express = require('express');
+const bodyParser = require("body-parser");
+const cors = require('cors');
 var app = express();
 
 const Sentry = require('@sentry/node');
 
-var Inventory = {
-    hammer: {
-        inventory: 2
+let Inventory = {
+    wrench: {
+        inventory: 0
     },
     nails: {
-        inventory: 2
+        inventory: 0
     },
-    screwdriver: {
-        inventory: 2
+    hammer: {
+        inventory: 1
     }
-}
+};
+
+let checkout = (cart) => {
+    let tempInventory = Inventory;
+
+    cart.forEach((item) => {
+        if (tempInventory[item.id].inventory <= 0) {
+            throw Error("No inventory for " + item.id);
+        }
+        tempInventory[item.id].inventory--;
+    });
+
+    // only gets here if we have enough inventory for all items. now update real inventory
+    Inventory = tempInventory;
+};
 
 Sentry.init({ dsn: 'https://dddc44f682974e31af4331d292f3055c@sentry.io/300067'});
 
 // The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
-app.use(bodyParser.urlencoded({
-    extended: false
-}));
+app.use(bodyParser.json());
 app.use(cors());
 
-app.post('/checkout', function (req, res, next) {
-    // res.json({
-    //     msg: 'This is CORS-enabled for all origins!POST'
-    // })
-    var transactionId = req.header('X-Transaction-ID');
-    console.log("transactionid is : " + transactionId)
-    Sentry.configureScope(scope => {
-        scope.setTag("transaction_id", transactionId);
-    });
-    // throw new Error('Broke!');
-    res.send('abc');
-    // next(new Error('Sample Error 2'));
+app.all('*', function (req, res, next) {
+    let transactionId = req.header('X-Transaction-ID');
+    if (transactionId) {
+        console.log("transactionid is : " + transactionId);
+
+        Sentry.configureScope(scope => {
+            scope.setTag("transaction_id", transactionId);
+            scope.setExtra("inventory", JSON.stringify( Inventory));
+        });
+    }
+    next();
+});
+
+app.post('/checkout', function (req, res) {
+    let order = req.body;
+
+    console.log("Processing order for: " + order.email);
+    checkout(order.cart);
+    res.send('Success');
+});
+
+app.get('/capture-message', function (req, rest) {
+    Sentry.captureMessage('Custom Message');
 });
 
 // The error handler must be before any other error middleware
