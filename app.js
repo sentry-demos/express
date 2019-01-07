@@ -3,7 +3,9 @@ const bodyParser = require("body-parser");
 const cors = require('cors');
 var app = express();
 
+// Initalize Sentry (import library and instantiate)
 const Sentry = require('@sentry/node');
+Sentry.init({ dsn: 'https://dddc44f682974e31af4331d292f3055c@sentry.io/300067'});
 
 let Inventory = {
     wrench: {
@@ -20,6 +22,7 @@ let Inventory = {
 let checkout = (cart) => {
     let tempInventory = Inventory;
 
+    // check if we have enough Inventory
     cart.forEach((item) => {
         if (tempInventory[item.id].inventory <= 0) {
             throw Error("No inventory for " + item.id);
@@ -27,14 +30,13 @@ let checkout = (cart) => {
         tempInventory[item.id].inventory--;
     });
 
-    // only gets here if we have enough inventory for all items. now update real inventory
+    // update Inventory if we have enough to fulfill this order
     Inventory = tempInventory;
 };
 
-Sentry.init({ dsn: 'https://dddc44f682974e31af4331d292f3055c@sentry.io/300067'});
-
 // The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
+
 app.use(bodyParser.json());
 app.use(cors());
 
