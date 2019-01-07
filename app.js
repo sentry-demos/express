@@ -5,7 +5,7 @@ var app = express();
 
 // Initalize Sentry (import library and instantiate)
 const Sentry = require('@sentry/node');
-Sentry.init({ dsn: 'https://dddc44f682974e31af4331d292f3055c@sentry.io/300067'});
+Sentry.init({ dsn: 'https://276b9c69b15b41a3ae98d07206889b24@sentry.io/1366275'});
 
 let Inventory = {
     wrench: {
@@ -41,15 +41,22 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.all('*', function (req, res, next) {
-    let transactionId = req.header('X-Transaction-ID');
-    if (transactionId) {
-        console.log("transactionid is : " + transactionId);
+    let transactionId = req.header('X-Transaction-ID'),
+        order = req.body;
 
+    if (transactionId) {
         Sentry.configureScope(scope => {
             scope.setTag("transaction_id", transactionId);
-            scope.setExtra("inventory", JSON.stringify( Inventory));
         });
     }
+    if (order.email) {
+        Sentry.configureScope(scope => {
+            scope.setUser({ email: order.email });
+        });
+    }
+    Sentry.configureScope(scope => {
+        scope.setExtra("inventory", JSON.stringify(Inventory));
+    });
     next();
 });
 
