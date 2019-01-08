@@ -68,8 +68,25 @@ app.post('/checkout', function (req, res) {
     res.send('Success');
 });
 
-app.get('/capture-message', function (req, rest) {
+app.get('/capture-message', function (req, res) {
     Sentry.captureMessage('Custom Message');
+    res.send('Success');
+});
+
+app.get('/unhandled', function (req, res) {
+    let obj = {};
+    obj.doesNotExist();
+});
+
+app.get('/handled', function (req, res) {
+    try {
+        let obj = {};
+        obj.doesNotExist();
+    } catch (error) {
+        Sentry.captureException(error);
+        res.status(500).send("Something broke");
+    }
+    res.send('Success');
 });
 
 // The error handler must be before any other error middleware
