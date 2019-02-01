@@ -42,11 +42,17 @@ app.use(cors());
 
 app.all('*', function (req, res, next) {
     let transactionId = req.header('X-Transaction-ID'),
+        sessionId = req.header("X-Session-ID"),
         order = req.body;
 
     if (transactionId) {
         Sentry.configureScope(scope => {
             scope.setTag("transaction_id", transactionId);
+        });
+    }
+    if (sessionId) {
+        Sentry.configureScope(scope => {
+            scope.setTag("session_id", sessionId);
         });
     }
     if (order.email) {
