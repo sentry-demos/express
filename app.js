@@ -8,15 +8,9 @@ const Sentry = require('@sentry/node');
 Sentry.init({ dsn: 'https://276b9c69b15b41a3ae98d07206889b24@sentry.io/1366275'});
 
 let Inventory = {
-    wrench: {
-        inventory: 0
-    },
-    nails: {
-        inventory: 0
-    },
-    hammer: {
-        inventory: 1
-    }
+    wrench: 0,
+    nails: 0,
+    hammer: 1
 };
 
 let checkout = (cart) => {
@@ -24,10 +18,10 @@ let checkout = (cart) => {
 
     // check if we have enough Inventory
     cart.forEach((item) => {
-        if (tempInventory[item.id].inventory <= 0) {
+        if (tempInventory[item.id] <= 0) {
             throw Error("No inventory for " + item.id);
         }
-        tempInventory[item.id].inventory--;
+        tempInventory[item.id]--;
     });
 
     // update Inventory if we have enough to fulfill this order
