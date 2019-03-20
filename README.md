@@ -26,4 +26,4 @@ $ npm run deploy
 7. Hit the various APIs via another demo (e.g. https://github.com/sentry-demos/react) or postman (e.g. localhost:3001/handled)
 
 # GIF
-![Alt Text](express-js-demo.gif)autoautoauto
+![Alt Text](express-js-demo.gif)
