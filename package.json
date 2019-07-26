@@ -10,6 +10,6 @@
   },
   "scripts": {
     "deploy": "make setup_release && node app.js",
-    "start": "make setup_release && node app.js"
+    "start": "node app.js"
   }
 }
