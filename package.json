@@ -8,6 +8,7 @@
     "express": "^4.17.1"
   },
   "scripts": {
-    "deploy": "make setup_release && node app.js"
+    "deploy": "make setup_release && node app.js",
+    "start": "make setup_release && node app.js"
   }
 }
