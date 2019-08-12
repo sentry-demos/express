@@ -82,11 +82,11 @@ app.get('/handled', function (req, res) {
     try {
         let obj = {};
         obj.doesNotExist();
+        res.send('Success');
     } catch (error) {
         Sentry.captureException(error);
         res.status(500).send("Something broke");
     }
-    res.send('Success');
 });
 
 // The error handler must be before any other error middleware
